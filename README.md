@@ -9,7 +9,10 @@ Using with ant
 <?xml version="1.0"?>
 <project name="Clover.Designer" default="build-all" basedir=".">
     <target name="upload-s3">
-    	 <taskdef resource="org/mule/ant/tasks.properties" classpathref="maven.plugin.classpath"/>
+     <path id="tasks.path">
+        	    <fileset dir="lib" includes="*.jar"/>
+    	    </path>
+    	 <taskdef resource="org/mule/ant/tasks.properties" classpathref="tasks.path"/>
         <s3delete endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="cloveretl-updatesite" dir="3.5">
         <s3upload endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="${s3.bucket}" dest="3.5" contentType="application/x-whatever">
             <!-- fileset structure -->
