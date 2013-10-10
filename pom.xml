@@ -17,8 +17,6 @@
     <build>
         <directory>target</directory>
         <finalName>${project.artifactId}-${project.version}</finalName>
-        <sourceDirectory>src/main</sourceDirectory>
-        <testSourceDirectory>src/test</testSourceDirectory>
 
         <plugins>
             <plugin>
