@@ -24,7 +24,7 @@ public class S3PutTask extends AWSTask
     /**
      * Boolean flag defining whether the put operation should set the ACL to publicly readable for each uploaded item.
      */
-    private boolean publicRead = false;
+    private boolean publicRead = true;
 
     /**
      * Target bucket, to which files should be uploaded.
@@ -123,7 +123,7 @@ public class S3PutTask extends AWSTask
                         Upload upload = transferManager.upload(por);
                         upload.waitForUploadResult();
 
-                        log("File: " + cleanFilePath + " copied to bucket: " + bucket + " destination: " + path);
+                        log("File: " + cleanFilePath + " copied to bucket: " + bucket + " destination: " + path + " read : " + isPublicRead());
                     }
                 }
             }
