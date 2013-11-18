@@ -44,18 +44,36 @@ public class S3DeleteTask extends AWSTask
         log(String.format("Region %s provided", getEndPoint()), Project.MSG_INFO);
         final AmazonS3 s3Client = transferManager.getAmazonS3Client();
         s3Client.setEndpoint(getEndPoint());
-        if (getDir() != null && !getDir().isEmpty())
-        {
-            final ObjectListing objects = s3Client.listObjects(bucket, getDir());
-            for (S3ObjectSummary objectSummary : objects.getObjectSummaries())
-            {
-                s3Client.deleteObject(bucket, objectSummary.getKey());
-                log(String.format("Key %s deleting successfully from %s bucket", objectSummary.getKey(), bucket), Project.MSG_INFO);
-            }
-        }
-        log(String.format("Key %s deleted successfully from %s bucket", getDir(), bucket), Project.MSG_INFO);
-
+        ObjectListing objects = null;
+		do {
+			objects = listObjects(s3Client, objects);
+			for (S3ObjectSummary objectSummary : objects.getObjectSummaries()) {
+				s3Client.deleteObject(bucket, objectSummary.getKey());
+				log(String.format("Key %s deleting successfully from %s bucket", objectSummary.getKey(), bucket), Project.MSG_INFO);
+			}
+		} while (objects.isTruncated());
+		log(String.format("Key %s deleted successfully from %s bucket", getDir(), bucket), Project.MSG_INFO);
     }
+
+	private ObjectListing listObjects(final AmazonS3 s3Client, ObjectListing objectListing) {
+		ObjectListing objects;
+		if (objectListing == null) {
+			objects = initialListObjects(s3Client);
+		} else {
+			objects = s3Client.listNextBatchOfObjects(objectListing);
+		}
+		return objects;
+	}
+
+	private ObjectListing initialListObjects(final AmazonS3 s3Client) {
+		ObjectListing objects;
+		if (getDir() != null && !getDir().isEmpty() && !getDir().matches("\\*+")) {
+			objects = s3Client.listObjects(bucket, getDir());
+		} else {
+			objects = s3Client.listObjects(bucket);
+		}
+		return objects;
+	}
 
 
     private void validateConfiguration()
