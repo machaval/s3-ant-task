@@ -148,6 +148,7 @@ public class S3PutTask extends AWSTask
         ObjectMetadata metadata = new ObjectMetadata();
         if (isPublicRead())
         {
+            log("File: " + file + " copied to bucket: " + bucket + " with public to read " + isPublicRead());
             por.setCannedAcl(CannedAccessControlList.PublicRead);
         }
         if (isReducedRedundancy())
