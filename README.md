@@ -13,7 +13,7 @@ Using with ant
         	    <fileset dir="lib" includes="*.jar"/>
     	    </path>
     	 <taskdef resource="org/mule/ant/tasks.properties" classpathref="tasks.path"/>
-        <s3delete endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="cloveretl-updatesite" dir="3.5">
+        <s3delete endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="cloveretl-updatesite" dir="3.5"/>
         <s3upload endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="${s3.bucket}" dest="3.5" contentType="application/x-whatever">
             <!-- fileset structure -->
     	    <fileset dir="${basedir}/target/artifact"/>
