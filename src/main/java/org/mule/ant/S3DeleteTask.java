@@ -3,9 +3,14 @@
  */
 package org.mule.ant;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
@@ -44,16 +49,27 @@ public class S3DeleteTask extends AWSTask
         log(String.format("Region %s provided", getEndPoint()), Project.MSG_INFO);
         final AmazonS3 s3Client = transferManager.getAmazonS3Client();
         s3Client.setEndpoint(getEndPoint());
+
         ObjectListing objects = null;
+        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
 		do {
 			objects = listObjects(s3Client, objects);
-			for (S3ObjectSummary objectSummary : objects.getObjectSummaries()) {
-				s3Client.deleteObject(bucket, objectSummary.getKey());
-				log(String.format("Key %s deleting successfully from %s bucket", objectSummary.getKey(), bucket), Project.MSG_INFO);
-			}
+			
+			List<KeyVersion> keys = collectKeys(objects);
+			s3Client.deleteObjects(deleteObjectsRequest.withKeys(keys));
+			
+			log(String.format("Batch of %s keys deleted from %s bucket", keys.size(), bucket), Project.MSG_INFO);
 		} while (objects.isTruncated());
-		log(String.format("Key %s deleted successfully from %s bucket", getDir(), bucket), Project.MSG_INFO);
     }
+
+	private List<KeyVersion> collectKeys(ObjectListing objects) {
+		List<KeyVersion> keys= new ArrayList<DeleteObjectsRequest.KeyVersion>();
+		for (S3ObjectSummary objectSummary : objects.getObjectSummaries()) {
+			keys.add(new KeyVersion(objectSummary.getKey()));
+			log(String.format("Adding key %s to be deleted from %s bucket", objectSummary.getKey(), bucket), Project.MSG_DEBUG);
+		}
+		return keys;
+	}
 
 	private ObjectListing listObjects(final AmazonS3 s3Client, ObjectListing objectListing) {
 		ObjectListing objects;
