@@ -56,9 +56,13 @@ public class S3DeleteTask extends AWSTask
 			objects = listObjects(s3Client, objects);
 			
 			List<KeyVersion> keys = collectKeys(objects);
-			s3Client.deleteObjects(deleteObjectsRequest.withKeys(keys));
 			
-			log(String.format("Batch of %s keys deleted from %s bucket", keys.size(), bucket), Project.MSG_INFO);
+			if (!keys.isEmpty()) {
+				s3Client.deleteObjects(deleteObjectsRequest.withKeys(keys));
+				log(String.format("Batch of %s keys deleted from %s bucket", keys.size(), bucket), Project.MSG_INFO);
+			} else {
+				log(String.format("Nothing to delete in %s", bucket + "/" + getDir()), Project.MSG_INFO);
+			}
 		} while (objects.isTruncated());
     }
 
