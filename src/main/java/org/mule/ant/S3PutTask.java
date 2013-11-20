@@ -1,5 +1,7 @@
 package org.mule.ant;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -120,25 +122,27 @@ public class S3PutTask extends AWSTask
 
                         applyMetadata(file, por);
 
-                        Upload upload = transferManager.upload(por);
-                        upload.waitForUploadResult();
+                        	Upload upload = transferManager.upload(por);
+                        	upload.waitForUploadResult();
 
                         log("File: " + cleanFilePath + " copied to bucket: " + bucket + " destination: " + path + " read : " + isPublicRead());
                     }
                 }
-            }
-            catch (BuildException be)
-            {
+		    } catch (AmazonServiceException e) {
+		    	log(e, Project.MSG_ERR);
+		    	throw new BuildException(e);
+		    } catch (AmazonClientException e) {
+		    	log(e, Project.MSG_ERR);
+		    	throw new BuildException(e);
+		    } catch (InterruptedException e) {
+		    	log("Upload interrupted");
+		    	log(e, Project.MSG_ERR);
+		    	throw new BuildException(e);
+		    } catch (BuildException be) {
                 // directory doesn't exist or is not readable
                 log("Could not upload file(s) to Amazon S3PutTask");
                 log(be.getMessage());
                 throw be;
-            }
-            catch (InterruptedException e)
-            {
-                log("Upload interrupted");
-                log(e.getMessage());
-                throw new BuildException(e);
             }
         }
     }
@@ -148,7 +152,7 @@ public class S3PutTask extends AWSTask
         ObjectMetadata metadata = new ObjectMetadata();
         if (isPublicRead())
         {
-            log("File: " + file + " copied to bucket: " + bucket + " with public to read " + isPublicRead());
+            log("Setting public to read= " + isPublicRead() + " to file " + file.getAbsolutePath());
             por.setCannedAcl(CannedAccessControlList.PublicRead);
         }
         if (isReducedRedundancy())
