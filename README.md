@@ -10,13 +10,13 @@ Using with ant
 <project name="Clover.Designer" default="build-all" basedir=".">
     <target name="upload-s3">
      <path id="tasks.path">
-        	    <fileset dir="lib" includes="*.jar"/>
+        	    <fileset dirs="lib" includes="*.jar"/>
     	    </path>
     	 <taskdef resource="org/mule/ant/tasks.properties" classpathref="tasks.path"/>
-        <s3delete endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="cloveretl-updatesite" dir="3.5"/>
+        <s3delete endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="${s3.bucket}" dirs="3.5"/>
         <s3upload endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="${s3.bucket}" dest="3.5" contentType="application/x-whatever">
             <!-- fileset structure -->
-    	    <fileset dir="${basedir}/target/artifact"/>
+    	    <fileset dirs="${basedir}/target/artifact"/>
 		</s3upload>
 	</target>
 </project>
@@ -37,10 +37,14 @@ Using with maven
             <configuration>
                 <tasks>
                     <taskdef resource="org/mule/ant/tasks.properties" classpathref="maven.plugin.classpath"/>
-                    <s3delete endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="cloveretl-updatesite" dir="3.5">
+                    <s3delete endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="${s3.bucket}" dir="3.5"/>
+                    <s3delete endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="${s3.bucket}" >
+                        <element name="images"/>
+                        <element name="fonts"/>
+                    </s3delete>
                    <s3upload endpoint="s3.amazonaws.com" key="${aws.key}" secret="${aws.secret}" bucket="${s3.bucket}" dest="3.5" contentType="application/x-whatever">
         	<!-- fileset structure -->
-    		         <fileset dir="${basedir}/target/artifact"/>
+    		         <fileset dirs="${basedir}/target/artifact"/>
 		           </s3upload>
 
                 </tasks>

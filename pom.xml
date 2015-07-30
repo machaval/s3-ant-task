@@ -4,7 +4,7 @@
 
     <groupId>org.mule</groupId>
     <artifactId>s3-ant-tasks</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
     <name>S3 ant task</name>
     <description>S3 ANT Task</description>
 
